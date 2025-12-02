@@ -1,0 +1,239 @@
+<!-- administradores.component.html -->
+<div class="contenedor-principal">
+  <div class="contenedor-interno">
+    
+    <!-- ===== SECCIÓN HEADER ===== -->
+    <div class="tarjeta-header">
+      <div class="header-flex">
+        <!-- Título -->
+        <div>
+          <h1 class="titulo">Administradores</h1>
+          <p class="subtitulo">Gestión de usuarios administrativos</p>
+        </div>
+        <!-- Botón Agregar -->
+        <button class="btn-agregar" (click)="abrirModalAgregar()">
+          <span class="icono">+</span>
+          Agregar
+        </button>
+      </div>
+
+      <!-- ===== BARRA DE BÚSQUEDA ===== -->
+      <div class="barra-busqueda">
+        <!-- Input de búsqueda -->
+        <div class="input-busqueda">
+          <label class="label-busqueda">Buscar:</label>
+          <input 
+            type="text" 
+            [(ngModel)]="terminoBusqueda"
+            placeholder="Ingrese el término de búsqueda..."
+            class="input-texto"
+          />
+        </div>
+
+        <!-- Radio buttons -->
+        <div class="opciones-radio">
+          <label class="radio-label">
+            <input 
+              type="radio" 
+              [(ngModel)]="buscarPor" 
+              value="id"
+              class="radio-input"
+            />
+            <span>ID</span>
+          </label>
+          <label class="radio-label">
+            <input 
+              type="radio" 
+              [(ngModel)]="buscarPor" 
+              value="noTrabajador"
+              class="radio-input"
+            />
+            <span>No. Trabajador</span>
+          </label>
+        </div>
+
+        <!-- Botón Buscar -->
+        <button class="btn-buscar" (click)="buscar()">
+          🔍 Buscar
+        </button>
+      </div>
+
+      <!-- ===== MENSAJES DE ERROR Y ÉXITO ===== -->
+      <div *ngIf="errorMessage" class="mensaje-error">
+        ⚠️ {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="mensaje-exito">
+        ✅ {{ successMessage }}
+      </div>
+    </div>
+
+    <!-- ===== TABLA DE ADMINISTRADORES ===== -->
+    <div class="tarjeta-tabla">
+      <!-- Indicador de carga -->
+      <div *ngIf="isLoading" class="cargando">
+        <div class="spinner"></div>
+        <p>Cargando administradores...</p>
+      </div>
+
+      <div *ngIf="!isLoading" class="tabla-contenedor">
+        <table class="tabla">
+          <!-- Encabezados -->
+          <thead class="tabla-header">
+            <tr>
+              <th class="th">ID</th>
+              <th class="th">Nombre</th>
+              <th class="th">Apellidomaterno Paterno</th>
+              <th class="th">Apellido Materno</th>
+              <th class="th">No. Trabajador</th>
+              <th class="th">Correo</th>
+              <th class="th">Contraseña</th>
+              <th class="th-acciones">Acciones</th>
+            </tr>
+          </thead>
+          <!-- Cuerpo de la tabla -->
+          <tbody>
+            <tr *ngFor="let admin of administradoresFiltrados; let i = index" 
+                [class.fila-par]="i % 2 === 0"
+                [class.fila-impar]="i % 2 !== 0">
+              <td class="td">{{ admin.id }}</td>
+              <td class="td">{{ admin.nombre }}</td>
+              <td class="td">{{ admin.apellidoPaterno }}</td>
+              <td class="td">{{ admin.apellidoMaterno }}</td>
+              <td class="td td-trabajador">{{ admin.noTrabajador }}</td>
+              <td class="td td-correo">{{ admin.correo }}</td>
+              <td class="td td-password">{{ ocultarContrasena(admin.contrasena) }}</td>
+              <td class="td">
+                <div class="botones-accion">
+                  <!-- Botón Editar -->
+                  <button 
+                    class="btn-editar" 
+                    (click)="abrirModalEditar(admin)"
+                    title="Editar">
+                    ✏️
+                  </button>
+                  <!-- Botón Eliminar -->
+                  <button 
+                    class="btn-eliminar" 
+                    (click)="eliminar(admin.id)"
+                    title="Eliminar">
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensaje cuando no hay resultados -->
+      <div *ngIf="!isLoading && administradoresFiltrados.length === 0" class="sin-resultados">
+        No se encontraron administradores
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== MODAL (Agregar/Editar) ===== -->
+<div *ngIf="mostrarModal" class="modal-fondo" (click)="cerrarModal()">
+  <div class="modal-contenedor" (click)="$event.stopPropagation()">
+    
+    <!-- Header del Modal -->
+    <div class="modal-header">
+      <h2 class="modal-titulo">
+        {{ modoModal === 'agregar' ? 'Agregar Administrador' : 'Editar Administrador' }}
+      </h2>
+      <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="modal-body">
+      
+      <!-- Mensajes en el modal -->
+      <div *ngIf="errorMessage" class="mensaje-error">
+        ⚠️ {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="mensaje-exito">
+        ✅ {{ successMessage }}
+      </div>
+
+      <!-- Campo: Nombre -->
+      <div class="form-grupo">
+        <label class="form-label">Nombre:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formulario.nombre"
+          class="form-input"
+          placeholder="Ingrese el nombre"
+        />
+      </div>
+
+      <!-- Campo: Apellido Paterno -->
+      <div class="form-grupo">
+        <label class="form-label">Apellido Paterno:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formulario.apellidoPaterno"
+          class="form-input"
+          placeholder="Ingrese el apellido paterno"
+        />
+      </div>
+
+      <!-- Campo: Apellido Materno -->
+      <div class="form-grupo">
+        <label class="form-label">Apellido Materno:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formulario.apellidoMaterno"
+          class="form-input"
+          placeholder="Ingrese el apellido materno"
+        />
+      </div>
+
+      <!-- Campo: Número de Trabajador -->
+      <div class="form-grupo">
+        <label class="form-label">Número de Trabajador:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formulario.noTrabajador"
+          class="form-input"
+          placeholder="Ingrese el número de trabajador"
+        />
+      </div>
+
+      <!-- Campo: Correo -->
+      <div class="form-grupo">
+        <label class="form-label">Correo:</label>
+        <input 
+          type="email" 
+          [(ngModel)]="formulario.correo"
+          class="form-input"
+          placeholder="correo@ejemplo.com"
+        />
+      </div>
+
+      <!-- Campo: Contraseña -->
+      <div class="form-grupo">
+        <label class="form-label">Contraseña {{ modoModal === 'editar' ? '(dejar en blanco para no cambiar)' : '' }}:</label>
+        <input 
+          type="password" 
+          [(ngModel)]="formulario.contrasena"
+          class="form-input"
+          [placeholder]="modoModal === 'agregar' ? 'Ingrese la contraseña' : 'Ingrese nueva contraseña (opcional)'"
+        />
+      </div>
+
+    </div>
+
+    <!-- Footer del Modal (Botones) -->
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()" [disabled]="isSaving">
+        Cancelar
+      </button>
+      <button class="btn-guardar" (click)="guardar()" [disabled]="isSaving">
+        {{ isSaving ? '⏳ Guardando...' : '💾 Guardar' }}
+      </button>
+    </div>
+
+  </div>
+</div>

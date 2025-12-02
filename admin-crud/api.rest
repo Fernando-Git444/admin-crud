@@ -1,0 +1,290 @@
+### Admin CRUD - API REST
+### Proyecto Integrador I - Backend
+### Base URL: http://localhost:3000/api
+
+### Variable de entorno
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+################################################################################
+### 1. HEALTH CHECK - Verificar que el servidor está funcionando
+################################################################################
+
+GET {{baseUrl}}
+
+################################################################################
+### 2. CREATE (POST) - Crear un nuevo administrador
+################################################################################
+
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Juan",
+    "apellidoPaterno": "Pérez",
+    "apellidoMaterno": "García",
+    "noTrabajador": "2001",
+    "correo": "juan.perez@ejemplo.com",
+    "contrasena": "password123"
+}
+
+###
+
+# Crear otro administrador
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "María",
+    "apellidoPaterno": "López",
+    "apellidoMaterno": "Martínez",
+    "noTrabajador": "2002",
+    "correo": "maria.lopez@ejemplo.com",
+    "contrasena": "securePass456"
+}
+
+###
+
+# Crear administrador sin apellido materno (campo opcional)
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Carlos",
+    "apellidoPaterno": "Ramírez",
+    "noTrabajador": "2003",
+    "correo": "carlos.ramirez@ejemplo.com",
+    "contrasena": "admin789"
+}
+
+################################################################################
+### 3. READ (GET) - Obtener administradores
+################################################################################
+
+### Obtener TODOS los administradores
+GET {{baseUrl}}/administradores
+
+###
+
+### Obtener administrador por ID específico (cambiar el ID según necesites)
+GET {{baseUrl}}/administradores/1
+
+###
+
+### Obtener otro administrador por ID
+GET {{baseUrl}}/administradores/2
+
+###
+
+### Buscar administrador por número de trabajador
+GET {{baseUrl}}/administradores/trabajador/2001
+
+###
+
+### Buscar otro administrador por número de trabajador
+GET {{baseUrl}}/administradores/trabajador/2002
+
+################################################################################
+### 4. UPDATE (PUT) - Actualizar un administrador existente
+################################################################################
+
+### Actualizar todos los campos de un administrador (cambiar ID según necesites)
+PUT {{baseUrl}}/administradores/1
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Juan Carlos",
+    "apellidoPaterno": "Pérez",
+    "apellidoMaterno": "García",
+    "noTrabajador": "2001",
+    "correo": "juancarlos.perez@ejemplo.com",
+    "contrasena": "newPassword123"
+}
+
+###
+
+### Actualización parcial - Solo cambiar el nombre
+PUT {{baseUrl}}/administradores/1
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Juan Alberto"
+}
+
+###
+
+### Actualización parcial - Solo cambiar el correo
+PUT {{baseUrl}}/administradores/2
+Content-Type: {{contentType}}
+
+{
+    "correo": "maria.lopez.updated@ejemplo.com"
+}
+
+###
+
+### Actualización parcial - Cambiar la contraseña
+PUT {{baseUrl}}/administradores/1
+Content-Type: {{contentType}}
+
+{
+    "contrasena": "superSecurePassword2024"
+}
+
+################################################################################
+### 5. DELETE - Eliminar un administrador
+################################################################################
+
+### Eliminar administrador por ID (cambiar ID según necesites)
+DELETE {{baseUrl}}/administradores/3
+
+###
+
+### Eliminar otro administrador
+DELETE {{baseUrl}}/administradores/4
+
+################################################################################
+### 6. CASOS DE ERROR - Validación de la API
+################################################################################
+
+### ERROR: Crear administrador sin campos requeridos
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Test"
+}
+
+###
+
+### ERROR: Crear administrador con correo inválido
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Test",
+    "apellidoPaterno": "User",
+    "noTrabajador": "9999",
+    "correo": "correo-invalido",
+    "contrasena": "password123"
+}
+
+###
+
+### ERROR: Crear administrador con número de trabajador duplicado
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Duplicado",
+    "apellidoPaterno": "Test",
+    "noTrabajador": "2001",
+    "correo": "otro@ejemplo.com",
+    "contrasena": "password123"
+}
+
+###
+
+### ERROR: Obtener administrador con ID que no existe
+GET {{baseUrl}}/administradores/99999
+
+###
+
+### ERROR: Actualizar administrador que no existe
+PUT {{baseUrl}}/administradores/99999
+Content-Type: {{contentType}}
+
+{
+    "nombre": "No Existe"
+}
+
+###
+
+### ERROR: Eliminar administrador que no existe
+DELETE {{baseUrl}}/administradores/99999
+
+################################################################################
+### 7. FLUJO COMPLETO - Ejemplo de uso secuencial
+################################################################################
+
+### PASO 1: Crear un nuevo administrador
+POST {{baseUrl}}/administradores
+Content-Type: {{contentType}}
+
+{
+    "nombre": "Ana",
+    "apellidoPaterno": "Sánchez",
+    "apellidoMaterno": "Torres",
+    "noTrabajador": "3001",
+    "correo": "ana.sanchez@ejemplo.com",
+    "contrasena": "anapass2024"
+}
+
+###
+
+### PASO 2: Listar todos los administradores (verificar que se creó)
+GET {{baseUrl}}/administradores
+
+###
+
+### PASO 3: Buscar el administrador recién creado por número de trabajador
+GET {{baseUrl}}/administradores/trabajador/3001
+
+###
+
+### PASO 4: Actualizar información del administrador (usar el ID obtenido)
+PUT {{baseUrl}}/administradores/1
+Content-Type: {{contentType}}
+
+{
+    "correo": "ana.sanchez.updated@ejemplo.com",
+    "nombre": "Ana María"
+}
+
+###
+
+### PASO 5: Verificar actualización
+GET {{baseUrl}}/administradores/1
+
+###
+
+### PASO 6: Eliminar el administrador
+DELETE {{baseUrl}}/administradores/1
+
+###
+
+### PASO 7: Verificar que fue eliminado
+GET {{baseUrl}}/administradores/1
+
+################################################################################
+### NOTAS IMPORTANTES
+################################################################################
+
+# 1. Antes de ejecutar estas peticiones, asegúrate de que:
+#    - MySQL está corriendo
+#    - La base de datos 'admin_crud' existe
+#    - El backend está corriendo en http://localhost:3000
+#
+# 2. Para iniciar el backend:
+#    cd backend
+#    npm run dev
+#
+# 3. Los IDs de los ejemplos (1, 2, 3, etc.) son solo de referencia.
+#    Utiliza los IDs reales que obtengas al crear registros.
+#
+# 4. La contraseña se hashea automáticamente con bcrypt antes de guardarse.
+#
+# 5. Los campos obligatorios son:
+#    - nombre
+#    - noTrabajador
+#    - correo
+#    - contrasena
+#
+# 6. Los campos opcionales son:
+#    - apellidoPaterno
+#    - apellidoMaterno
+#
+# 7. Para usar este archivo:
+#    - Instala la extensión "REST Client" en VS Code
+#    - Haz clic en "Send Request" sobre cada petición
+#    - O usa Ctrl+Alt+R / Cmd+Alt+R
